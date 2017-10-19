@@ -9,12 +9,17 @@
 import Foundation
 import Starscream
 
+public protocol SocketDelegate: class {
+    func onWebSocketDidReceiveMessage(with response: Response)
+}
+
 public final class Socket {
     // MARK: - Convenience aliases
     public typealias Payload = [String: Any]
     
     // MARK: - Properties
     
+    public weak var delegate: SocketDelegate?
     fileprivate var socket: WebSocket
     public var enableLogging = true
     
@@ -183,6 +188,7 @@ extension Socket: WebSocketDelegate {
             }
 
             channels[response.topic]?.received(response)
+            delegate?.onWebSocketDidReceiveMessage(with: response)
         } else {
             fatalError("Couldn't parse response: \(text)")
         }
